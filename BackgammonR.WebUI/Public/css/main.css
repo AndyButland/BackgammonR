@@ -1,0 +1,10 @@
+﻿body { font-family: Tahoma; font-size: 90%; }
+
+canvas      { float: left; width: 720px; margin-right: 20px; }
+#side-bar   { float: left; width: 300px; }
+
+.error { color: red; }
+.error-flash { display: none; }
+
+.message { color: green; }
+.messager-flash { display: none; }

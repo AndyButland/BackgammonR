@@ -1,0 +1,17 @@
+[Dd]ebug/
+[Rr]elease/
+build/
+[Bb]in/
+[Oo]bj/
+*.suo
+*.sln.cache 
+*.user
+TestResults/
+*.tmp
+private/log/
+*[Rr]e[Ss]harper.user
+_ReSharper.*/
+
+
+
+
