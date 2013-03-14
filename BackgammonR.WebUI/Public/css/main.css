@@ -1,6 +1,6 @@
 ﻿body { font-family: Tahoma; font-size: 90%; }
 
-canvas      { float: left; width: 720px; margin-right: 20px; }
+canvas      { float: left; width: 720px; margin-left: 20px; }
 #side-bar   { float: left; width: 300px; }
 
 .error { color: red; }
@@ -8,3 +8,6 @@ canvas      { float: left; width: 720px; margin-right: 20px; }
 
 .message { color: green; }
 .messager-flash { display: none; }
+
+.hidden { display: none; }
+

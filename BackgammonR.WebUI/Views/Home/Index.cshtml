@@ -21,8 +21,7 @@
         backgammonr.init();
     </script>
 </head>
-<body>
-    <canvas id="canvas" width="720" height="641"></canvas>
+<body>    
     <div id="side-bar">
         <h2>Join</h2>
 
@@ -34,7 +33,7 @@
 
         <p id="error-display" class="error error-flash"></p>  
 
-        <p id="player-joind-message" class="message message-flash"></p>  
+        <p id="message-display" class="message message-flash"></p>  
         
         <div data-bind="visible: hasJoined">
             <p>Welcome <span data-bind="text: name"></span></p>
@@ -49,6 +48,26 @@
             </li>
         </ul>
 
+        <h2>Games</h2>
+        <ul id="game-list" data-bind="foreach: games">
+            <li>
+                <span data-bind="text: black"></span> v <span data-bind="text: white"></span>
+                <a href="" class="view-game" data-bind="attr: { 'data-id': id }">View</a> 
+            </li>
+        </ul>
+
+    </div>
+
+    <div id="game">
+        <!-- ko if: selectedGame -->
+            <h2 data-bind="text: selectedGame().description"></h2>
+         <!-- /ko -->
+        <canvas id="canvas" width="720" height="641"></canvas>
+    </div>
+
+    <div class="hidden">
+        <img src="/public/img/black.png" />
+        <img src="/public/img/white.png" />
     </div>
 </body>
 </html>

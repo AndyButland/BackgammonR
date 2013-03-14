@@ -10,12 +10,15 @@
 
         public Game (Player player1, Player player2)
 	    {
+            Id = Guid.NewGuid();
             Black = player1;
             White = player2;
             StartedOn = DateTime.Now;
             InitializeBoard();
             Dice = new int[2];
 	    }
+
+        public Guid Id { get; set; }
 
         public Player Black { get; set; }
 

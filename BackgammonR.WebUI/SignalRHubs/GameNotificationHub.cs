@@ -59,5 +59,36 @@
                 Clients.Caller.displayError(name + " not available to be challenged.");    
             }            
         }
+
+        public void RespondToChallenge(string name, bool accept)
+        {
+            var challengingPlayer = Manager.Instance.Players
+                .Where(x => x.Name == name)
+                .SingleOrDefault();
+            var challengedPlayer = Manager.Instance.Players
+                .Where(x => x.ConnectionId == Context.ConnectionId)
+                .SingleOrDefault();
+
+            if (challengingPlayer != null)
+            {
+                Game game = null;
+                if (accept)
+                {
+                    game = new Game(challengingPlayer, challengedPlayer);
+                    Manager.Instance.Games.Add(game);
+                    challengingPlayer.Status = challengedPlayer.Status = ConnectionStatus.Playing;
+                }
+                else
+                {
+                    challengingPlayer.Status = challengedPlayer.Status = ConnectionStatus.ReadyToPlay;
+                }
+                Clients.All.challengeRespondedTo(challengingPlayer.Name, challengedPlayer.Name, accept, game);
+            }
+            else
+            {
+                Clients.Caller.displayError(name + " not available to be receive your challenge response.");
+            }  
+
+        }
     }
 }
