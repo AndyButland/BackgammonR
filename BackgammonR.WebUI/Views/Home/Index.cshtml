@@ -63,9 +63,15 @@
             <h2 data-bind="text: selectedGame().description"></h2>
          <!-- /ko -->
         <canvas id="canvas" width="720" height="641"></canvas>
+        <!-- ko if: selectedGame -->
+            <div>Move 1 -  from: <input id="from1" /> to: <input id="to1" /> </div>
+            <div>Move 2 -  from: <input id="from2" /> to: <input id="to2" /> </div>
+            <div><button id="move">Move</button></div>
+        <!-- /ko -->
     </div>
 
     <div class="hidden">
+        <!-- Preloads -->
         <img src="/public/img/black.png" />
         <img src="/public/img/white.png" />
     </div>
