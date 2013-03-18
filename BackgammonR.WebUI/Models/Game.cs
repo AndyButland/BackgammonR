@@ -32,7 +32,7 @@
 
         private void InitializeBoard() 
         {
-            Board = new int[NumberOfPlayers, NumberOfPoints];  // 1st dimension = player, 2nd dimension = points 
+            Board = GetNewBoard();
             for (int i = 1; i <= NumberOfPlayers; i++)
             {
                 Board[i - 1, 1] = 2;
@@ -40,6 +40,11 @@
                 Board[i - 1, 17] = 3;
                 Board[i - 1, 19] = 5;                
             }
+        }
+
+        private int[,] GetNewBoard() 
+        {
+            return new int[NumberOfPlayers, NumberOfPoints];
         }
 
         public void RollDice()
@@ -51,7 +56,7 @@
 
         public bool Move(int playerNumber, int from1, int to1, int from2, int to2)
         {
-            if (IsMoveValid(playerNumber, from1, to1, from2, from2))
+            if (IsMoveValid(playerNumber, from1, to1, from2, to2))
             {
                 UpdateBoard(Board, playerNumber, from1, to1);
                 UpdateBoard(Board, playerNumber, from2, to2);
@@ -75,7 +80,7 @@
 
         private bool IsMoveValid(int playerNumber, int from1, int to1, int from2, int to2)
         {
-            var testBoard = Board;
+            var testBoard = GetNewBoard();
             UpdateBoard(testBoard, playerNumber, from1, to1);
             UpdateBoard(testBoard, playerNumber, from2, to2);
             return IsBoardValidAfterMove(testBoard);

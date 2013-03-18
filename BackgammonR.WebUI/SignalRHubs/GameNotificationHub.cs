@@ -86,7 +86,7 @@
                     Manager.Instance.Games.Add(game);
 
                     // Add users to group for the game
-                    Groups.Add(challengedPlayer.ConnectionId, game.Id.ToString());
+                    Groups.Add(challengingPlayer.ConnectionId, game.Id.ToString());
                     Groups.Add(challengedPlayer.ConnectionId, game.Id.ToString());
 
                     // Update status of players
@@ -131,7 +131,7 @@
                     if (game.Move(playerNumber, from1, to1, from2, to2))
                     {
                         // Notify all clients in group of move
-                        Clients.Group(game.Id.ToString()).moved(playerNumber, from1, to1, from2, to2);
+                        Clients.Group(game.Id.ToString()).moved(game);
                     }
                     else
                     {

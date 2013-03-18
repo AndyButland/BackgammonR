@@ -1,17 +1,26 @@
 ﻿var backgammonr = window.backgammonr = function () {
 
+    //--------------------------------------
+    // Constants
+    //--------------------------------------
     var BLACK = 1;
     var WHITE = 2;
     var NUMBER_OF_PLAYERS = 2;
     var NUMBER_OF_COUNTERS = 15;
     var NUMBER_OF_POINTS = 26;  // points + bar + off the board
     var COUNTER_WIDTH = 42;
-    var COUNTER_SPACING_X = 13;
+    var COUNTER_SPACING_X = 8;
+    var BAR_WIDTH = 56;
     var BOARD_WIDTH = 720;
     var BOARD_HEIGHT = 634;
-    var BOARD_BORDER_X_LEFT = 18;
-    var BOARD_BORDER_X_RIGHT = 40;
-    var BOARD_BORDER_Y = 30;    
+    var BOARD_BORDER_X = 40;
+    var BOARD_BORDER_Y = 30;
+
+    //--------------------------------------
+    // Globals
+    //--------------------------------------
+    var blackCounters;
+    var whiteCounters;
 
     //--------------------------------------
     // Initialisation
@@ -19,7 +28,7 @@
     function init() {
         initPersistentConnection();
         initDataBinding();
-        initCanvas();
+        initDisplay();
     }
 
     //--------------------------------------
@@ -45,10 +54,10 @@
         }
     }
 
-    function addPlayer(player) {
+    function addPlayer(playerDTO) {
         var player = {
-            name: player.Name,
-            status: ko.observable(player.StatusLabel)
+            name: playerDTO.Name,
+            status: ko.observable(playerDTO.StatusLabel)
         };
 
         player.canChallenge = ko.computed(function () {
@@ -69,13 +78,13 @@
         player.status(status);
     }
 
-    function addGame(game) {
+    function addGame(gameDTO) {
         var game = {
-            id: game.Id,
-            black: game.Black.Name,
-            white: game.White.Name,
-            description: game.Black.Name + " v " + game.White.Name,
-            board: game.Board,
+            id: gameDTO.Id,
+            black: gameDTO.Black.Name,
+            white: gameDTO.White.Name,
+            description: gameDTO.Black.Name + " v " + gameDTO.White.Name,
+            board: gameDTO.Board,
         };
 
         viewModel.games.push(game);
@@ -89,6 +98,14 @@
         }
     }
 
+    function selectGame(game) {
+        viewModel.selectedGame(game);
+    }
+
+    function updateGameBoard(board) {
+        viewModel.selectedGame().board = board;
+    }
+    
     //--------------------------------------
     // Persistent connection (SignalR)
     //--------------------------------------
@@ -142,12 +159,15 @@
             }
         };
 
-        hub.client.challengeRespondedTo = function (challengerName, challengedName, accept, game) {
+        hub.client.challengeRespondedTo = function (challengerName, challengedName, accept, gameDTO) {
             if (accept) {
                 updatePlayerStatus(challengerName, "Playing");
                 updatePlayerStatus(challengedName, "Playing");
-                addGame(game);
-                viewGame(game.Id);
+                addGame(gameDTO);
+
+                var game = getGame(gameDTO.Id);
+                selectGame(game);
+                updateGameBoardDisplay(game);
             } else {
                 updatePlayerStatus(challengerName, "Ready to play");
                 updatePlayerStatus(challengedName, "Ready to play");
@@ -157,8 +177,10 @@
             }
         }
 
-        hub.client.moved = function (playerNumber, from1, to1, from2, to2) {
-            notify("Moved", message, true);
+        hub.client.moved = function (gameDTO) {
+            updateGameBoard(gameDTO.Board);
+            updateGameBoardDisplay(viewModel.selectedGame());
+            notify((playerNumber == 1 ? "Black" : "White") + " has moved.", "message", true);
         };
 
         hub.client.displayError = function (text) {
@@ -194,7 +216,9 @@
 
             $(document).on("click", "#game-list a.view-game", function () {
                 var gameId = $(this).attr("data-id");
-                viewGame(gameId);
+                var game = getGame(gameId)
+                selectGame(game);
+                updateGameBoardDisplay(game);
                 return false;
             });
 
@@ -210,11 +234,6 @@
                     notify("Invalid move entry", "error", true);
                     moveEntryValid = false;
                 }
-                console.log(viewModel.selectedGame().Id);
-                console.log(from1);
-                console.log(to1);
-                console.log(from2);
-                console.log(to2);
 
                 if (moveEntryValid) {
                     hub.server.move(viewModel.selectedGame().id, from1, to1, from2, to2);
@@ -238,8 +257,9 @@
     //--------------------------------------
     // Game canvas
     //--------------------------------------
-    function initCanvas() {
-        drawBoardBackground(getContext());
+    function initDisplay() {        
+        blackCounters = getCounterArray("black");
+        whiteCounters = getCounterArray("white")
     }
 
     function getContext() {
@@ -250,25 +270,18 @@
     function drawBoardBackground(ctx) {
         var img = new Image();
         img.src = "/public/img/board.jpg";
-        img.onload = function () {
-            ctx.drawImage(img, 0, 0);
-        }            
+        ctx.drawImage(img, 0, 0);
     }
 
-    function viewGame(id) {
-        var game = getGame(id);
-
-        viewModel.selectedGame(game);
-
+    function updateGameBoardDisplay(game) {
         var c = document.getElementById("canvas");
-        var ctx = c.getContext("2d");
+        var ctx = getContext();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawBoardBackground(ctx);
         drawCounters(ctx, game.board);
     }
 
     function drawCounters(ctx, board) {
-
-        var blackCounters = getCounterArray("black");
-        var whiteCounters = getCounterArray("white");
 
         // Loop through players (i)
         for (var i = 0; i < NUMBER_OF_PLAYERS; i++) {
@@ -286,14 +299,20 @@
                     // Loop through counters on point
                     for (var k = 0; k < board[i][j]; k++) {                        
                         if (j <= NUMBER_OF_POINTS / 2) {
-                            x = BOARD_WIDTH - BOARD_BORDER_X_RIGHT - ((COUNTER_WIDTH + COUNTER_SPACING_X) * (j - 1)) - COUNTER_WIDTH;
+                            x = BOARD_WIDTH - BOARD_BORDER_X - ((COUNTER_WIDTH + COUNTER_SPACING_X) * (j - 1)) - COUNTER_WIDTH;
+                            if (j >= NUMBER_OF_POINTS / 4) {
+                                x -= BAR_WIDTH;
+                            }
                             if (i + 1 == BLACK) {
                                 y = BOARD_BORDER_Y + (k * COUNTER_WIDTH);
                             } else {
                                 y = BOARD_HEIGHT - BOARD_BORDER_Y - (k * COUNTER_WIDTH) - COUNTER_WIDTH;
                             }
                         } else {
-                            x = BOARD_BORDER_X_LEFT + ((COUNTER_WIDTH + COUNTER_SPACING_X) * (j - (NUMBER_OF_POINTS / 2))) + COUNTER_WIDTH;
+                            x = BOARD_BORDER_X + ((COUNTER_WIDTH + COUNTER_SPACING_X) * (j - (NUMBER_OF_POINTS / 2))) + COUNTER_WIDTH;
+                            if (j < NUMBER_OF_POINTS / 4) {
+                                x -= BAR_WIDTH;
+                            }
                             if (i + 1 == BLACK) {
                                 y = BOARD_HEIGHT - BOARD_BORDER_Y - (k * COUNTER_WIDTH) - COUNTER_WIDTH;
                             } else {
@@ -301,7 +320,7 @@
                             }
                         }
                         ctx.drawImage(counters[counterIndex], x, y);
-                        counterIndex++;
+                        counterIndex++;                        
                     }
                 }
             }
@@ -314,6 +333,7 @@
             counters[i] = new Image();
             counters[i].src = "/public/img/" + color + ".png";
         }
+
         return counters;
     }
 
