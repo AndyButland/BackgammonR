@@ -140,6 +140,7 @@
     <Content Include="Public\css\main.css" />
     <Content Include="Public\img\black.png" />
     <Content Include="Public\img\board.jpg" />
+    <Content Include="Public\img\dice.png" />
     <Content Include="Public\img\white.png" />
     <Content Include="Public\js\backgammonr.js" />
     <Content Include="Public\js\libs\jquery-1.8.3.min.js" />

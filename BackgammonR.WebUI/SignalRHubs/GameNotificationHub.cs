@@ -107,28 +107,27 @@
             }  
         }
 
-        public void Move(Guid gameId, int from1, int to1, int from2, int to2)
+        public void RollDice(Guid gameId)
         {
-            var game = Manager.Instance.Games
-                .Where(x => x.Id == gameId)
-                .SingleOrDefault();
+            var game = GetGame(gameId);
             if (game != null)
             {
-                int playerNumber = 0;
-                if (game.Black.ConnectionId == Context.ConnectionId)
-                { 
-                    playerNumber = 1;
-                } 
-                else
-                {
-                    if (game.White.ConnectionId == Context.ConnectionId) {
-                        playerNumber = 2;
-                    }
-                }
+                game.RollDice();
 
-                if (playerNumber > 0)
+                // Notify all clients in group of dice roll
+                Clients.Group(game.Id.ToString()).diceRolled(game.Dice);
+            }
+        }
+
+        public void Move(Guid gameId, int from1, int to1, int from2, int to2)
+        {
+            var game = GetGame(gameId);
+            if (game != null)
+            {
+                if ((game.CurrentPlayer == 1 && game.Black.ConnectionId == Context.ConnectionId) ||
+                    (game.CurrentPlayer == 2 && game.White.ConnectionId == Context.ConnectionId))
                 {
-                    if (game.Move(playerNumber, from1, to1, from2, to2))
+                    if (game.Move(from1, to1, from2, to2))
                     {
                         // Notify all clients in group of move
                         Clients.Group(game.Id.ToString()).moved(game);
@@ -140,13 +139,20 @@
                 }
                 else
                 {
-                    Clients.Caller.displayError("Player not playing game.");
+                    Clients.Caller.displayError("Not your turn.");
                 }
             }
             else
             {
                 Clients.Caller.displayError("Game not found.");
             }
+        }
+
+        private Game GetGame(Guid gameId)
+        {
+            return Manager.Instance.Games
+                .Where(x => x.Id == gameId)
+                .SingleOrDefault();
         }
     }
 }

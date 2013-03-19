@@ -61,12 +61,24 @@
     <div id="game">
         <!-- ko if: selectedGame -->
             <h2 data-bind="text: selectedGame().description"></h2>
+            <p><span data-bind="text: selectedGame().currentPlayer"></span> to play</p>
          <!-- /ko -->
         <canvas id="canvas" width="720" height="641"></canvas>
         <!-- ko if: selectedGame -->
-            <div>Move 1 -  from: <input id="from1" /> to: <input id="to1" /> </div>
-            <div>Move 2 -  from: <input id="from2" /> to: <input id="to2" /> </div>
-            <div><button id="move">Move</button></div>
+            <h3>Dice</h3>
+            <!-- ko if: isTurn -->
+                <div><button id="roll">Roll</button></div>
+            <!-- /ko -->
+            <div>
+                <span id="dice1" class="dice"></span>
+                <span id="dice2" class="dice"></span>
+            </div>
+            <!-- ko if: isTurn -->
+                <h3>Move</h3>
+                <div>Move 1 -  from: <input id="from1" /> to: <input id="to1" /> </div>
+                <div>Move 2 -  from: <input id="from2" /> to: <input id="to2" /> </div>
+                <div><button id="move">Move</button></div>
+            <!-- /ko -->
         <!-- /ko -->
     </div>
 

@@ -13,6 +13,7 @@
             Id = Guid.NewGuid();
             Black = player1;
             White = player2;
+            CurrentPlayer = 1;
             StartedOn = DateTime.Now;
             InitializeBoard();
             Dice = new int[2];
@@ -23,6 +24,8 @@
         public Player Black { get; set; }
 
         public Player White { get; set; }
+
+        public int CurrentPlayer { get; set; }
 
         public DateTime StartedOn { get; set; }
 
@@ -54,12 +57,20 @@
             Dice[1] = rnd.Next(1, 6);
         }
 
-        public bool Move(int playerNumber, int from1, int to1, int from2, int to2)
+        public bool Move(int from1, int to1, int from2, int to2)
         {
-            if (IsMoveValid(playerNumber, from1, to1, from2, to2))
+            if (IsMoveValid(from1, to1, from2, to2))
             {
-                UpdateBoard(Board, playerNumber, from1, to1);
-                UpdateBoard(Board, playerNumber, from2, to2);
+                UpdateBoard(Board, from1, to1);
+                UpdateBoard(Board, from2, to2);
+                if (CurrentPlayer == 1)
+                {
+                    CurrentPlayer = 2;
+                }
+                else
+                {
+                    CurrentPlayer = 1;
+                }
 
                 return true;
             }
@@ -67,22 +78,22 @@
             return false;
         }
 
-        private void UpdateBoard(int[,] board, int playerNumber, int from, int to)
+        private void UpdateBoard(int[,] board, int from, int to)
         {
             // Decrement old point            
-            board[playerNumber - 1, from]--;
+            board[CurrentPlayer - 1, from]--;
 
             // Increment new point
-            board[playerNumber - 1, to]++;
+            board[CurrentPlayer - 1, to]++;
 
             // TODO: If new point contains single opposition counter, move it back to start            
         }
 
-        private bool IsMoveValid(int playerNumber, int from1, int to1, int from2, int to2)
+        private bool IsMoveValid(int from1, int to1, int from2, int to2)
         {
             var testBoard = GetNewBoard();
-            UpdateBoard(testBoard, playerNumber, from1, to1);
-            UpdateBoard(testBoard, playerNumber, from2, to2);
+            UpdateBoard(testBoard, from1, to1);
+            UpdateBoard(testBoard, from2, to2);
             return IsBoardValidAfterMove(testBoard);
         }
 

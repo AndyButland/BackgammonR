@@ -5,6 +5,8 @@
     //--------------------------------------
     var BLACK = 1;
     var WHITE = 2;
+    var NUMBER_OF_DICE_FACES = 6;
+    var NUMBER_OF_DICE = 2;
     var NUMBER_OF_PLAYERS = 2;
     var NUMBER_OF_COUNTERS = 15;
     var NUMBER_OF_POINTS = 26;  // points + bar + off the board
@@ -40,7 +42,12 @@
         players: ko.observableArray([]),
         games: ko.observableArray([]),
         selectedGame: ko.observable(),
+        playing: ko.observable(""),
     }
+
+    viewModel.isTurn = ko.computed(function () {
+        return this.selectedGame() != null && this.selectedGame().currentPlayer() == this.playing();
+        }, viewModel);
 
     function initDataBinding() {
         ko.applyBindings(viewModel);
@@ -84,6 +91,7 @@
             black: gameDTO.Black.Name,
             white: gameDTO.White.Name,
             description: gameDTO.Black.Name + " v " + gameDTO.White.Name,
+            currentPlayer: ko.observable(gameDTO.CurrentPlayer == 1 ? "Black" : "White"),
             board: gameDTO.Board,
         };
 
@@ -102,8 +110,9 @@
         viewModel.selectedGame(game);
     }
 
-    function updateGameBoard(board) {
+    function updateGame(board, playerNumber) {
         viewModel.selectedGame().board = board;
+        viewModel.selectedGame().currentPlayer(playerNumber == 1 ? "Black" : "White");
     }
     
     //--------------------------------------
@@ -161,13 +170,21 @@
 
         hub.client.challengeRespondedTo = function (challengerName, challengedName, accept, gameDTO) {
             if (accept) {
-                updatePlayerStatus(challengerName, "Playing");
-                updatePlayerStatus(challengedName, "Playing");
                 addGame(gameDTO);
 
                 var game = getGame(gameDTO.Id);
                 selectGame(game);
                 updateGameBoardDisplay(game);
+
+                if (viewModel.name() == challengerName) {
+                    viewModel.playing("Black");
+                } else {
+                    viewModel.playing("White");
+                }
+
+                updatePlayerStatus(challengerName, "Playing");
+                updatePlayerStatus(challengedName, "Playing");
+
             } else {
                 updatePlayerStatus(challengerName, "Ready to play");
                 updatePlayerStatus(challengedName, "Ready to play");
@@ -177,10 +194,15 @@
             }
         }
 
+        hub.client.diceRolled = function (dice) {
+            updateDiceDisplay(dice);
+            notify("Dice rolled.", "message", true);
+        };
+
         hub.client.moved = function (gameDTO) {
-            updateGameBoard(gameDTO.Board);
+            updateGame(gameDTO.Board, gameDTO.CurrentPlayer);
             updateGameBoardDisplay(viewModel.selectedGame());
-            notify((playerNumber == 1 ? "Black" : "White") + " has moved.", "message", true);
+            notify("Move made.", "message", true);
         };
 
         hub.client.displayError = function (text) {
@@ -220,6 +242,10 @@
                 selectGame(game);
                 updateGameBoardDisplay(game);
                 return false;
+            });
+
+            $(document).on("click", "#roll", function () {
+                hub.server.rollDice(viewModel.selectedGame().id);
             });
 
             $(document).on("click", "#move", function () {
@@ -335,6 +361,16 @@
         }
 
         return counters;
+    }
+
+    function updateDiceDisplay(dice) {
+        for (var i = 1; i <= NUMBER_OF_DICE_FACES; i++) {
+            $(".dice").removeClass("dice-" + i);
+        }
+
+        for (var i = 1; i <= NUMBER_OF_DICE; i++) {
+            $("#dice" + i).addClass("dice-" + dice[i - 1]);
+        }        
     }
 
     return {

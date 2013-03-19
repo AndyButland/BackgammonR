@@ -3,6 +3,14 @@
 #game      { float: left; width: 720px; margin-left: 20px; }
 #side-bar   { float: left; width: 300px; }
 
+.dice { display: inline-block; width: 80px; height: 80px; background: url('/public/img/dice.png') }
+.dice-1 {  }
+.dice-2 { background-position: 161px 0; }
+.dice-3 { background-position: 81px 0; }
+.dice-4 { background-position: 0px 81px; }
+.dice-5 { background-position: 161px 81px; }
+.dice-6 { background-position: 81px 81px; }
+
 .error { color: red; }
 .error-flash { display: none; }
 
