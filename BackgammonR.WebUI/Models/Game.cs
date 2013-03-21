@@ -41,7 +41,7 @@
                 Board[i - 1, 1] = 2;
                 Board[i - 1, 12] = 5;
                 Board[i - 1, 17] = 3;
-                Board[i - 1, 19] = 5;                
+                Board[i - 1, 19] = 5;
             }
         }
 
@@ -91,6 +91,13 @@
 
         private bool IsMoveValid(int from1, int to1, int from2, int to2)
         {
+            // Validate matches to roll
+            if (!(to1 - from1 == Dice[0] && to2 - from2 == Dice[1]) || (to1 - from1 == Dice[1] && to2 - from2 == Dice[0]))
+            {
+                return false;
+            }
+
+            // Validate position of counters after move
             var testBoard = GetNewBoard();
             UpdateBoard(testBoard, from1, to1);
             UpdateBoard(testBoard, from2, to2);

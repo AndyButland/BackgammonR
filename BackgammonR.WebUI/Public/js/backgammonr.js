@@ -17,6 +17,7 @@
     var BOARD_HEIGHT = 634;
     var BOARD_BORDER_X = 40;
     var BOARD_BORDER_Y = 30;
+    var OFF_BOARD_OFFSET = 10;
 
     //--------------------------------------
     // Globals
@@ -316,14 +317,18 @@
             // Loop through points (j)
             for (var j = 0; j < NUMBER_OF_POINTS; j++) {
                 var x, y;
-                if (j == 0) {
-                    // Bar
-                } else if (j == NUMBER_OF_POINTS - 1) {
-                    // Off the board
-                } else {
-                    // Points
-                    // Loop through counters on point
-                    for (var k = 0; k < board[i][j]; k++) {                        
+                // Loop through counters on point
+                for (var k = 0; k < board[i][j]; k++) {
+                    if (j == 0) {
+                        // Bar
+                        x = (BOARD_WIDTH / 2) - (COUNTER_WIDTH / 2);
+                        y = (BOARD_HEIGHT / 2) + (k * COUNTER_WIDTH + COUNTER_WIDTH) * (i + 1 == BLACK ? 1 : -1) - COUNTER_WIDTH / 2;
+                    } else if (j == NUMBER_OF_POINTS - 1) {
+                        // Off the board
+                        x = BOARD_WIDTH + OFF_BOARD_OFFSET;
+                        y = (BOARD_HEIGHT / 2) + (k * COUNTER_WIDTH + COUNTER_WIDTH) * (i + 1 == BLACK ? 1 : -1) - COUNTER_WIDTH / 2;
+                    } else {
+                        // Points
                         if (j <= NUMBER_OF_POINTS / 2) {
                             x = BOARD_WIDTH - BOARD_BORDER_X - ((COUNTER_WIDTH + COUNTER_SPACING_X) * (j - 1)) - COUNTER_WIDTH;
                             if (j >= NUMBER_OF_POINTS / 4) {
@@ -345,9 +350,9 @@
                                 y = BOARD_BORDER_Y + (k * COUNTER_WIDTH);
                             }
                         }
-                        ctx.drawImage(counters[counterIndex], x, y);
-                        counterIndex++;                        
                     }
+                    ctx.drawImage(counters[counterIndex], x, y);
+                    counterIndex++;
                 }
             }
         }
