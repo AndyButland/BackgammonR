@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BackgammonR.WebUI", "BackgammonR.WebUI\BackgammonR.WebUI.csproj", "{8B8B8CDB-5833-40AF-AA89-1F3A4827ED1D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BackgammonR.WebUI.Tests", "BackgammonR.WebUI.Tests\BackgammonR.WebUI.Tests.csproj", "{2A19750A-9F70-4C60-8D4E-2D870F835719}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +15,10 @@ Global
 		{8B8B8CDB-5833-40AF-AA89-1F3A4827ED1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8B8B8CDB-5833-40AF-AA89-1F3A4827ED1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8B8B8CDB-5833-40AF-AA89-1F3A4827ED1D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A19750A-9F70-4C60-8D4E-2D870F835719}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A19750A-9F70-4C60-8D4E-2D870F835719}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A19750A-9F70-4C60-8D4E-2D870F835719}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A19750A-9F70-4C60-8D4E-2D870F835719}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

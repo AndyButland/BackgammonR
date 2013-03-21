@@ -86,22 +86,34 @@
             // Increment new point
             board[CurrentPlayer - 1, to]++;
 
-            // TODO: If new point contains single opposition counter, move it back to start            
+            // If new point contains single opposition counter, move it back to start            
+            var otherPlayer = CurrentPlayer == 1 ? 2 : 1;
+            if (board[otherPlayer - 1, NumberOfPoints - to - 1] == 1)
+            {
+                board[otherPlayer - 1, NumberOfPoints - to - 1]--;
+                board[otherPlayer - 1, 0]++;
+            }
         }
 
         private bool IsMoveValid(int from1, int to1, int from2, int to2)
         {
             // Validate matches to roll
-            if (!(to1 - from1 == Dice[0] && to2 - from2 == Dice[1]) || (to1 - from1 == Dice[1] && to2 - from2 == Dice[0]))
+            if ((to1 - from1 == Dice[0] && to2 - from2 == Dice[1]) || 
+                (to1 - from1 == Dice[1] && to2 - from2 == Dice[0]) ||
+                ((to1 - from1) + (to2 - from2)) == Dice[0] + Dice[1])
             {
-                return false;
+                // Validate first from point occupied by pieces of right colour
+                if (Board[CurrentPlayer - 1, from1] > 0)
+                {
+                    // Validate position of counters after move
+                    var testBoard = (int[,])Board.Clone();
+                    UpdateBoard(testBoard, from1, to1);
+                    UpdateBoard(testBoard, from2, to2);
+                    return IsBoardValidAfterMove(testBoard);
+                }
             }
 
-            // Validate position of counters after move
-            var testBoard = GetNewBoard();
-            UpdateBoard(testBoard, from1, to1);
-            UpdateBoard(testBoard, from2, to2);
-            return IsBoardValidAfterMove(testBoard);
+            return false;
         }
 
         private bool IsBoardValidAfterMove(int[,] board)
@@ -135,8 +147,8 @@
             {
                 if (j > 0 && j < NumberOfPoints - 1)    // skip the bar and off the board
                 {
-                    if ((board[0, j] > 0 && board[1, NumberOfPoints - j] > 0) ||
-                        (board[1, j] > 0 && board[0, NumberOfPoints - j] > 0))
+                    if ((board[0, j] > 0 && board[1, NumberOfPoints - j - 1] > 0) ||
+                        (board[1, j] > 0 && board[0, NumberOfPoints - j - 1] > 0))
                     {
                         return false;
                     }
