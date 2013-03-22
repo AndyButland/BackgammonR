@@ -115,11 +115,11 @@
                 game.RollDice();
 
                 // Notify all clients in group of dice roll
-                Clients.Group(game.Id.ToString()).diceRolled(game.Dice);
+                Clients.Group(game.Id.ToString()).diceRolled(game.Dice, Context.ConnectionId);
             }
         }
 
-        public void Move(Guid gameId, int from1, int to1, int from2, int to2)
+        public void Move(Guid gameId, int[] from, int[] to)
         {
             var game = GetGame(gameId);
             if (game != null)
@@ -127,7 +127,7 @@
                 if ((game.CurrentPlayer == 1 && game.Black.ConnectionId == Context.ConnectionId) ||
                     (game.CurrentPlayer == 2 && game.White.ConnectionId == Context.ConnectionId))
                 {
-                    if (game.Move(from1, to1, from2, to2))
+                    if (game.Move(from, to))
                     {
                         // Notify all clients in group of move
                         Clients.Group(game.Id.ToString()).moved(game);
@@ -136,6 +136,30 @@
                     {
                         Clients.Caller.displayError("Invalid move.");
                     }
+                }
+                else
+                {
+                    Clients.Caller.displayError("Not your turn.");
+                }
+            }
+            else
+            {
+                Clients.Caller.displayError("Game not found.");
+            }
+        }
+
+        public void Pass(Guid gameId)
+        {
+            var game = GetGame(gameId);
+            if (game != null)
+            {
+                if ((game.CurrentPlayer == 1 && game.Black.ConnectionId == Context.ConnectionId) ||
+                    (game.CurrentPlayer == 2 && game.White.ConnectionId == Context.ConnectionId))
+                {
+                    game.Pass();
+
+                    // Notify all clients in group of pass
+                    Clients.Group(game.Id.ToString()).passed(game);
                 }
                 else
                 {

@@ -1,7 +1,9 @@
 ﻿body { font-family: Tahoma; font-size: 90%; }
 
-#game      { float: left; width: 720px; margin-left: 20px; }
-#side-bar   { float: left; width: 300px; }
+#player-info   { float: left; width: 260px; }
+#board { float: left; width: 780px; margin-left: 10px; margin-right: 10px; }
+#play { float: left; width: 200px; }
+
 
 .dice { display: inline-block; width: 80px; height: 80px; background: url('/public/img/dice.png') }
 .dice-1 {  }

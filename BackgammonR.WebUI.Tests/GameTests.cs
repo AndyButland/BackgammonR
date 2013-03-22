@@ -76,7 +76,7 @@
             game.Dice[1] = 4;
 
             // Act  
-            var result = game.Move(1, 2, 1, 3);
+            var result = game.Move(new int[] { 1, 1}, new int[] { 2, 3 });
 
             // Assert
             Assert.IsFalse(result);
@@ -94,7 +94,7 @@
             game.Dice[1] = 5;
 
             // Act  
-            var result = game.Move(2, 4, 2, 7);
+            var result = game.Move(new int[] { 2, 2 }, new int[] { 4, 7 });
 
             // Assert
             Assert.IsFalse(result);
@@ -112,7 +112,7 @@
             game.Dice[1] = 6;
 
             // Act  
-            var result = game.Move(1, 7, 7, 12);
+            var result = game.Move(new int[] { 1, 7 }, new int[] { 7, 12 });
 
             // Assert
             Assert.IsFalse(result);
@@ -131,7 +131,44 @@
             game.Dice[1] = 5;
 
             // Act  
-            var result = game.Move(1, 3, 1, 6);
+            var result = game.Move(new int[] { 1, 1 }, new int[] { 3, 6 });
+
+            // Assert
+            Assert.IsFalse(result);
+            Assert.AreEqual(1, game.CurrentPlayer);
+        }
+
+        [TestMethod]
+        public void Game_MoveOtherCountersWhenCounterOnBar_IsInvalid()
+        {
+            // Arrange
+            var player1 = new Player { Name = "Player 1", };
+            var player2 = new Player { Name = "Player 2", };
+            var game = new Game(player1, player2);
+            game.Board[0, 0]++;
+            game.Dice[0] = 2;
+            game.Dice[1] = 4;
+
+            // Act  
+            var result = game.Move(new int[] { 1, 1 }, new int[] { 3, 5 });
+
+            // Assert
+            Assert.IsFalse(result);
+            Assert.AreEqual(1, game.CurrentPlayer);
+        }
+
+        [TestMethod]
+        public void Game_FourMovesWithoutDoubleThrown_IsInvalid()
+        {
+            // Arrange
+            var player1 = new Player { Name = "Player 1", };
+            var player2 = new Player { Name = "Player 2", };
+            var game = new Game(player1, player2);
+            game.Dice[0] = 2;
+            game.Dice[1] = 4;
+
+            // Act  
+            var result = game.Move(new int[] { 1, 1, 12, 12 }, new int[] { 3, 5, 14, 16 });
 
             // Assert
             Assert.IsFalse(result);
@@ -149,7 +186,7 @@
             game.Dice[1] = 4;
 
             // Act  
-            var result = game.Move(1, 3, 1, 5);
+            var result = game.Move(new int[] { 1, 1 }, new int[] { 3, 5 });
 
             // Assert
             Assert.IsTrue(result);
@@ -167,7 +204,44 @@
             game.Dice[1] = 2;
 
             // Act  
-            var result = game.Move(1, 2, 2, 4);
+            var result = game.Move(new int[] { 1, 2 }, new int[] { 2, 4 });
+
+            // Assert
+            Assert.IsTrue(result);
+            Assert.AreEqual(2, game.CurrentPlayer);
+        }
+
+        [TestMethod]
+        public void Game_MoveBringsOnCounterFromBar_IsValid()
+        {
+            // Arrange
+            var player1 = new Player { Name = "Player 1", };
+            var player2 = new Player { Name = "Player 2", };
+            var game = new Game(player1, player2);
+            game.Board[0, 0]++;
+            game.Dice[0] = 2;
+            game.Dice[1] = 4;
+
+            // Act  
+            var result = game.Move(new int[] { 0, 1 }, new int[] { 2, 5 });
+
+            // Assert
+            Assert.IsTrue(result);
+            Assert.AreEqual(2, game.CurrentPlayer);
+        }
+
+        [TestMethod]
+        public void Game_FourMovesWithDoubleThrown_IsValid()
+        {
+            // Arrange
+            var player1 = new Player { Name = "Player 1", };
+            var player2 = new Player { Name = "Player 2", };
+            var game = new Game(player1, player2);
+            game.Dice[0] = 2;
+            game.Dice[1] = 2;
+
+            // Act  
+            var result = game.Move(new int[] { 1, 1, 12, 12 }, new int[] { 3, 3, 14, 14 });
 
             // Assert
             Assert.IsTrue(result);
@@ -183,15 +257,30 @@
             var game = new Game(player1, player2);
             game.Dice[0] = 1;
             game.Dice[1] = 2;
-            game.Move(1, 2, 1, 3);
+            game.Move(new int[] { 1, 1 }, new int[] { 2, 3 });
             game.Dice[0] = 1;
             game.Dice[1] = 4;
 
             // Act  
-            game.Move(19, 20, 19, 23);
+            game.Move(new int[] { 19, 19 }, new int[] { 20, 23 });
 
             // Assert
             Assert.AreEqual(1, game.Board[0,0]);
+        }
+
+        [TestMethod]
+        public void Game_Pass_PassesTurnToOtherPlayer()
+        {
+            // Arrange
+            var player1 = new Player { Name = "Player 1", };
+            var player2 = new Player { Name = "Player 2", };
+            var game = new Game(player1, player2);
+
+            // Act  
+            game.Pass();
+
+            // Assert
+            Assert.AreEqual(2, game.CurrentPlayer);
         }
     }
 }

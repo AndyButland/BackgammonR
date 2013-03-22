@@ -1,6 +1,7 @@
 ﻿namespace BackgammonR.WebUI.Models
 {
     using System;
+    using System.Linq;
 
     public class Game
     {
@@ -57,20 +58,16 @@
             Dice[1] = rnd.Next(1, 6);
         }
 
-        public bool Move(int from1, int to1, int from2, int to2)
+        public bool Move(int[] from, int[] to)
         {
-            if (IsMoveValid(from1, to1, from2, to2))
+            if (IsMoveValid(from, to))
             {
-                UpdateBoard(Board, from1, to1);
-                UpdateBoard(Board, from2, to2);
-                if (CurrentPlayer == 1)
+                for (int i = 0; i < from.Length; i++)
                 {
-                    CurrentPlayer = 2;
+                    UpdateBoard(Board, from[i], to[i]);
                 }
-                else
-                {
-                    CurrentPlayer = 1;
-                }
+
+                UpdateCurrentPlayer();
 
                 return true;
             }
@@ -95,25 +92,82 @@
             }
         }
 
-        private bool IsMoveValid(int from1, int to1, int from2, int to2)
+        private bool IsMoveValid(int[] from, int[] to)
         {
-            // Validate matches to roll
-            if ((to1 - from1 == Dice[0] && to2 - from2 == Dice[1]) || 
-                (to1 - from1 == Dice[1] && to2 - from2 == Dice[0]) ||
-                ((to1 - from1) + (to2 - from2)) == Dice[0] + Dice[1])
+            // Valid numbers
+            if (DoesMoveContainValidNumbers(from, to))
             {
-                // Validate first from point occupied by pieces of right colour
-                if (Board[CurrentPlayer - 1, from1] > 0)
+                // Validate number of moves with dice roll
+                if (DoesNumberOfMovesMatchDiceDoubleStatus(from))
                 {
-                    // Validate position of counters after move
-                    var testBoard = (int[,])Board.Clone();
-                    UpdateBoard(testBoard, from1, to1);
-                    UpdateBoard(testBoard, from2, to2);
-                    return IsBoardValidAfterMove(testBoard);
+                    // Validate matches to roll
+                    if (DoesMoveMatchRoll(from, to))
+                    {
+                        // Validate first from point occupied by pieces of right colour
+                        if (DoesMoveStartFromPointWithCountersOfCorrectColor(from[0]))
+                        {
+                            // Validate moves any counter that's on the bar
+                            if (DoesMoveBringOnCounterFromBar(from))
+                            {
+                                // Validate position of counters after move
+                                var testBoard = (int[,])Board.Clone();
+                                for (int i = 0; i < from.Length; i++)
+                                {
+                                    UpdateBoard(testBoard, from[i], to[i]);
+                                }
+
+                                return IsBoardValidAfterMove(testBoard);
+                            }
+                        }
+                    }
                 }
             }
 
             return false;
+        }
+
+        private bool DoesMoveContainValidNumbers(int[] from, int[] to)
+        {
+            for (int i = 0; i < from.Length; i++)
+            {
+                if (from[i] < 0 || from[i] > NumberOfPoints || to[i] < 1 || to[i] > NumberOfPoints)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private bool DoesNumberOfMovesMatchDiceDoubleStatus(int[] from)
+        {
+            return from.Length == 2 && Dice[0] != Dice[1] || from.Length == 4 && Dice[0] == Dice[1];
+        }
+
+        private bool DoesMoveMatchRoll(int[] from, int[] to)
+        {
+            // Check single move
+            var result = (to[0] - from[0] == Dice[0] && to[1] - from[1] == Dice[1]) ||
+                (to[0] - from[0] == Dice[1] && to[1] - from[1] == Dice[0]) ||
+                ((to[0] - from[0]) + (to[1] - from[1])) == Dice[0] + Dice[1];
+
+            // Check double move if present
+            if (from.Length > 2)
+            {
+                result = result && to[2] - from[2] == Dice[0] && to[3] - from[3] == Dice[0];
+            }
+
+            return result;
+        }
+
+        private bool DoesMoveStartFromPointWithCountersOfCorrectColor(int from1)
+        {
+            return Board[CurrentPlayer - 1, from1] > 0;
+        }
+
+        private bool DoesMoveBringOnCounterFromBar(int[] from)
+        {
+            return Board[CurrentPlayer - 1, 0] == 0 || from.Contains(0);
         }
 
         private bool IsBoardValidAfterMove(int[,] board)
@@ -156,6 +210,23 @@
             }
 
             return true;
-        }        
+        }
+
+        public void Pass()
+        {
+            UpdateCurrentPlayer();
+        }
+
+        private void UpdateCurrentPlayer()
+        {
+            if (CurrentPlayer == 1)
+            {
+                CurrentPlayer = 2;
+            }
+            else
+            {
+                CurrentPlayer = 1;
+            }
+        }
     }
 }

@@ -22,7 +22,7 @@
     </script>
 </head>
 <body>    
-    <div id="side-bar">
+    <div id="player-info">
         <h2>Join</h2>
 
         <div data-bind="visible: !hasJoined()">
@@ -58,12 +58,15 @@
 
     </div>
 
-    <div id="game">
+    <div id="board">
         <!-- ko if: selectedGame -->
             <h2 data-bind="text: selectedGame().description"></h2>
             <p><span data-bind="text: selectedGame().currentPlayer"></span> to play</p>
          <!-- /ko -->
         <canvas id="canvas" width="780" height="641"></canvas>
+    </div>
+
+    <div id="play">
         <!-- ko if: selectedGame -->
             <h3>Dice</h3>
             <!-- ko if: isTurn -->
@@ -75,9 +78,20 @@
             </div>
             <!-- ko if: isTurn -->
                 <h3>Move</h3>
-                <div>Move 1 -  from: <input id="from1" /> to: <input id="to1" /> </div>
-                <div>Move 2 -  from: <input id="from2" /> to: <input id="to2" /> </div>
-                <div><button id="move">Move</button></div>
+                <div>Move 1 -  from: <input id="from1" /></div>
+                <div>to: <input id="to1" /> </div>
+                <div>Move 2 -  from: <input id="from2" /></div>
+                <div>to: <input id="to2" /> </div>
+
+                <!-- ko if: rolledDouble -->                
+                    <div>Move 3 -  from: <input id="from3" /></div>
+                    <div>to: <input id="to3" /> </div>
+                    <div>Move 4 -  from: <input id="from4" /></div>
+                    <div>to: <input id="to4" /> </div>
+                <!-- /ko -->
+
+                <div><button id="move">Move</button> <button id="pass">Pass</button></div>
+
             <!-- /ko -->
         <!-- /ko -->
     </div>

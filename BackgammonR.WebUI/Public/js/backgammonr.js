@@ -9,13 +9,14 @@
     var NUMBER_OF_DICE = 2;
     var NUMBER_OF_PLAYERS = 2;
     var NUMBER_OF_COUNTERS = 15;
-    var NUMBER_OF_POINTS = 26;  // points + bar + off the board
+    var NUMBER_OF_POINTS = 26;  // points + bar + off the board3
     var COUNTER_WIDTH = 42;
     var COUNTER_SPACING_X = 8;
     var BAR_WIDTH = 56;
     var BOARD_WIDTH = 720;
     var BOARD_HEIGHT = 634;
-    var BOARD_BORDER_X = 40;
+    var BOARD_BORDER_X_LEFT = 30;
+    var BOARD_BORDER_X_RIGHT = 40;
     var BOARD_BORDER_Y = 30;
     var OFF_BOARD_OFFSET = 10;
 
@@ -44,6 +45,7 @@
         games: ko.observableArray([]),
         selectedGame: ko.observable(),
         playing: ko.observable(""),
+        rolledDouble: ko.observable(false),
     }
 
     viewModel.isTurn = ko.computed(function () {
@@ -195,7 +197,10 @@
             }
         }
 
-        hub.client.diceRolled = function (dice) {
+        hub.client.diceRolled = function (dice, connectionId) {
+            if ($.connection.hub.id == connectionId) {
+                viewModel.rolledDouble(dice[0] == dice[1]);
+            }
             updateDiceDisplay(dice);
             notify("Dice rolled.", "message", true);
         };
@@ -204,6 +209,11 @@
             updateGame(gameDTO.Board, gameDTO.CurrentPlayer);
             updateGameBoardDisplay(viewModel.selectedGame());
             notify("Move made.", "message", true);
+        };
+
+        hub.client.passed = function (gameDTO) {
+            updateGame(gameDTO.Board, gameDTO.CurrentPlayer);
+            notify("Move passed.", "message", true);
         };
 
         hub.client.displayError = function (text) {
@@ -250,12 +260,22 @@
             });
 
             $(document).on("click", "#move", function () {
-                var moveEntryValid,from1, to1, from2, to2;
+                var moveEntryValid;
+                var from = new Array();
+                var to = new Array();
                 try {
-                    from1 = parseInt($("#from1").val());
-                    to1 = parseInt($("#to1").val());
-                    from2 = parseInt($("#from2").val());
-                    to2 = parseInt($("#to2").val());
+                    from.push(parseInt($("#from1").val()));
+                    from.push(parseInt($("#from2").val()));
+                    to.push(parseInt($("#to1").val()));                    
+                    to.push(parseInt($("#to2").val()));
+
+                    if (viewModel.rolledDouble()) {
+                        from.push(parseInt($("#from3").val()));
+                        from.push(parseInt($("#from4").val()));
+                        to.push(parseInt($("#to3").val()));
+                        to.push(parseInt($("#to4").val()));
+                    }
+
                     moveEntryValid = true;
                 } catch (e) {
                     notify("Invalid move entry", "error", true);
@@ -263,8 +283,12 @@
                 }
 
                 if (moveEntryValid) {
-                    hub.server.move(viewModel.selectedGame().id, from1, to1, from2, to2);
+                    hub.server.move(viewModel.selectedGame().id, from, to);
                 }
+            });
+
+            $(document).on("click", "#pass", function () {
+                hub.server.pass(viewModel.selectedGame().id);
             });
 
         });
@@ -328,9 +352,9 @@
                         x = BOARD_WIDTH + OFF_BOARD_OFFSET;
                         y = (BOARD_HEIGHT / 2) + (k * COUNTER_WIDTH + COUNTER_WIDTH) * (i + 1 == BLACK ? 1 : -1) - COUNTER_WIDTH / 2;
                     } else {
-                        // Points
+                        // Points                        
                         if (j <= NUMBER_OF_POINTS / 2) {
-                            x = BOARD_WIDTH - BOARD_BORDER_X - ((COUNTER_WIDTH + COUNTER_SPACING_X) * (j - 1)) - COUNTER_WIDTH;
+                            x = BOARD_WIDTH - BOARD_BORDER_X_RIGHT - ((COUNTER_WIDTH + COUNTER_SPACING_X) * (j - 1)) - COUNTER_WIDTH;
                             if (j >= NUMBER_OF_POINTS / 4) {
                                 x -= BAR_WIDTH;
                             }
@@ -340,9 +364,9 @@
                                 y = BOARD_HEIGHT - BOARD_BORDER_Y - (k * COUNTER_WIDTH) - COUNTER_WIDTH;
                             }
                         } else {
-                            x = BOARD_BORDER_X + ((COUNTER_WIDTH + COUNTER_SPACING_X) * (j - (NUMBER_OF_POINTS / 2))) + COUNTER_WIDTH;
-                            if (j < NUMBER_OF_POINTS / 4) {
-                                x -= BAR_WIDTH;
+                            x = BOARD_BORDER_X_LEFT + ((COUNTER_WIDTH + COUNTER_SPACING_X) * (j - (NUMBER_OF_POINTS / 2)));
+                            if (j > 3 * ((NUMBER_OF_POINTS - 2) / 4)) {
+                                x += BAR_WIDTH;
                             }
                             if (i + 1 == BLACK) {
                                 y = BOARD_HEIGHT - BOARD_BORDER_Y - (k * COUNTER_WIDTH) - COUNTER_WIDTH;
