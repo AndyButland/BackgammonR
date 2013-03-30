@@ -282,6 +282,88 @@
             // Assert
             Assert.AreEqual(2, game.CurrentPlayer);
         }
+
+        [TestMethod]
+        public void Game_BearOffCountersWhenOneOrMoreNotInHomeBoard_IsInvalid()
+        {
+            // Arrange
+            var player1 = new Player { Name = "Player 1", };
+            var player2 = new Player { Name = "Player 2", };
+            var game = new Game(player1, player2);
+            ZeroBoard(game.Board);
+            game.Board[0, 24] = 5;
+            game.Board[0, 23] = 5;
+            game.Board[0, 22] = 4;
+            game.Board[0, 15] = 1;
+            game.Dice[0] = 1;
+            game.Dice[1] = 2;
+
+            // Act  
+            var result = game.Move(new int[] { 23, 24 }, new int[] { 25, 25 });
+
+            // Assert
+            Assert.IsFalse(result);
+            Assert.AreEqual(1, game.CurrentPlayer);
+        }
+
+        [TestMethod]
+        public void Game_BearOffCountersWhenAllCountersInHomeBoardWithExactRoll_IsValid()
+        {
+            // Arrange
+            var player1 = new Player { Name = "Player 1", };
+            var player2 = new Player { Name = "Player 2", };
+            var game = new Game(player1, player2);
+            ZeroBoard(game.Board);
+            game.Board[0, 24] = 5;
+            game.Board[0, 23] = 5;
+            game.Board[0, 22] = 5;
+            game.Dice[0] = 1;
+            game.Dice[1] = 2;
+
+            // Act  
+            var result = game.Move(new int[] { 23, 24 }, new int[] { 25, 25 });
+
+            // Assert
+            Assert.IsTrue(result);
+            Assert.AreEqual(2, game.CurrentPlayer);
+        }
+
+        [TestMethod]
+        public void Game_BearOffCountersWhenAllCountersInHomeBoardWithInexactRoll_IsValid()
+        {
+            // Arrange
+            var player1 = new Player { Name = "Player 1", };
+            var player2 = new Player { Name = "Player 2", };
+            var game = new Game(player1, player2);
+            ZeroBoard(game.Board);
+            game.Board[0, 24] = 5;
+            game.Board[0, 23] = 5;
+            game.Board[0, 22] = 5;
+            game.Dice[0] = 1;
+            game.Dice[1] = 3;
+
+            // Act  
+            var result = game.Move(new int[] { 23, 24 }, new int[] { 25, 25 });
+
+            // Assert
+            Assert.IsTrue(result);
+            Assert.AreEqual(2, game.CurrentPlayer);
+        }
+        
+        #region Test helpers
+
+        private void ZeroBoard(int[,] board)
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                for (int j = 0; j < 26; j++)
+                {
+                    board[i, j] = 0;
+                }
+            }
+        }
+
+        #endregion
     }
 }
 

@@ -7,6 +7,7 @@
     {
         private const int NumberOfPlayers = 2;
         private const int NumberOfPoints = 26;      // (24 + 1 for the bar + 1 for off the board)
+        private const int NumberOfPointsInHomeBoard = 6;
         private const int MaxNumberOfCountersPerPoint = 5;
 
         public Game (Player player1, Player player2)
@@ -109,14 +110,18 @@
                             // Validate moves any counter that's on the bar
                             if (DoesMoveBringOnCounterFromBar(from))
                             {
-                                // Validate position of counters after move
-                                var testBoard = (int[,])Board.Clone();
-                                for (int i = 0; i < from.Length; i++)
+                                // Validate bearing off has all pieces in home board
+                                if (DoesBearingOffMoveComeFromCompleteHomeBoard(to))
                                 {
-                                    UpdateBoard(testBoard, from[i], to[i]);
-                                }
+                                    // Validate position of counters after move
+                                    var testBoard = (int[,])Board.Clone();
+                                    for (int i = 0; i < from.Length; i++)
+                                    {
+                                        UpdateBoard(testBoard, from[i], to[i]);
+                                    }
 
-                                return IsBoardValidAfterMove(testBoard);
+                                    return IsBoardValidAfterMove(testBoard);
+                                }
                             }
                         }
                     }
@@ -157,6 +162,13 @@
                 result = result && to[2] - from[2] == Dice[0] && to[3] - from[3] == Dice[0];
             }
 
+            // Handling bearing off moves where roll doesn't need to be exact
+            // TODO: implement logic here, but it's tricky... so for now we'll just say any move off the board is valid
+            if (!result && to.Contains(NumberOfPoints - 1))
+            {
+                result = true;
+            }
+
             return result;
         }
 
@@ -168,6 +180,22 @@
         private bool DoesMoveBringOnCounterFromBar(int[] from)
         {
             return Board[CurrentPlayer - 1, 0] == 0 || from.Contains(0);
+        }
+
+        private bool DoesBearingOffMoveComeFromCompleteHomeBoard(int[] to)
+        {
+            if (to.Contains(NumberOfPoints - 1))
+            {
+                for (int i = 0; i < NumberOfPoints - NumberOfPointsInHomeBoard - 1; i++)
+                {
+                    if (Board[CurrentPlayer - 1, i] > 0)
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
         }
 
         private bool IsBoardValidAfterMove(int[,] board)
