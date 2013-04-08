@@ -124,6 +124,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Infrastructure\Membership\AppMembershipProvider.cs" />
     <Compile Include="Models\ConnectionStatus.cs" />
     <Compile Include="Models\Helpers\EnumHelpers.cs" />
     <Compile Include="Models\Player.cs" />
@@ -163,6 +164,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Home\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Properties\PublishProfiles\backgammonr - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\backgammonr - Web Deploy.pubxml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

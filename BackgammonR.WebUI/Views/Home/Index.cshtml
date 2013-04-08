@@ -63,7 +63,25 @@
             <h2 data-bind="text: selectedGame().description"></h2>
             <p><span data-bind="text: selectedGame().currentPlayer"></span> to play</p>
          <!-- /ko -->
+        <ul class="numbers">
+            @for (int i = 12; i >= 1; i--)
+            {
+                <li>
+                    <span class="bl">@i</span>
+                    <span class="wh">@(24 - i + 1)</span>
+                </li>
+            }
+        </ul>
         <canvas id="canvas" width="780" height="641"></canvas>
+        <ul class="numbers">
+            @for (int i = 12; i >= 1; i--)
+            {
+                <li>
+                    <span class="bl">@(24 - i + 1)</span>
+                    <span class="wh">@i</span>                    
+                </li>
+            }
+        </ul>
     </div>
 
     <div id="play">

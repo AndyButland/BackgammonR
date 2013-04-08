@@ -3,11 +3,48 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
+    using System.Web.Security;
     using BackgammonR.WebUI.Models;
     using Microsoft.AspNet.SignalR;
 
     public class GameNotificationHub : Hub
     {
+        #region Connection management
+
+        public override Task OnConnected()
+        {
+            // Reconnect player if already logged on
+            if (!string.IsNullOrEmpty(Context.User.Identity.Name))
+            {
+                var player = Manager.Instance.Players
+                    .Where(x => x.Name == Context.User.Identity.Name)
+                    .SingleOrDefault();
+
+                if (player != null)
+                {
+                    player.ConnectionId = Context.ConnectionId;
+                    Clients.Caller.updateSelf(player.Name);
+                }
+            }
+
+            return base.OnConnected();
+        }
+
+        public override Task OnDisconnected()
+        {
+            return base.OnDisconnected();
+        }
+
+        public override Task OnReconnected()
+        {
+            return base.OnReconnected();
+        }
+
+        #endregion
+
+        #region Hub methods
+
         public void GetPlayers()
         {
             Clients.Caller.loadPlayers(Manager.Instance.Players);
@@ -17,15 +54,10 @@
         {
             Clients.Caller.loadGames(Manager.Instance.Games);
         }
-
-
+        
         public void Join(string name)
         {
-            if (Manager.Instance.Players.Any(x => x.Name == name))
-            {
-                Clients.Caller.displayError("We already have someone of that name playing.  Please choose another.");
-            }
-            else
+            if (Membership.ValidateUser(name, string.Empty))
             {
                 var user = new Player 
                 { 
@@ -34,14 +66,23 @@
                     Status = ConnectionStatus.ReadyToPlay 
                 };
                 Manager.Instance.Players.Add(user);
+
+                FormsAuthentication.SetAuthCookie(name, false);
+
                 Clients.All.joined(user, Context.ConnectionId);
-                Clients.Caller.callerJoined(name);
+                Clients.Caller.callerJoined(name);                
+            }
+            else
+            {
+                Clients.Caller.displayError("We already have someone of that name playing.  Please choose another.");
             }
         }
 
         public void Leave(string name)
         {
             Manager.Instance.Players.RemoveAll(x => x.Name == name);
+            FormsAuthentication.SignOut();
+
             Clients.All.left(name, Context.ConnectionId);
             Clients.Caller.callerLeft();
         }
@@ -172,11 +213,17 @@
             }
         }
 
+        #endregion
+
+        #region Helpers
+
         private Game GetGame(Guid gameId)
         {
             return Manager.Instance.Games
                 .Where(x => x.Id == gameId)
                 .SingleOrDefault();
         }
+
+        #endregion
     }
 }

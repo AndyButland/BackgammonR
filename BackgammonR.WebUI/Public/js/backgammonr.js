@@ -125,6 +125,11 @@
   
         var hub = $.connection.gameNotificationHub;
 
+        hub.client.updateSelf = function (name) {
+            viewModel.name(name);
+            viewModel.hasJoined(true);            
+        };
+
         hub.client.loadPlayers = function (players) {
             for (var i = 0; i < players.length; i++) {
                 addPlayer(players[i]);
@@ -235,7 +240,9 @@
 
             $(document).on("click", "#player-list a.challenge", function () {
                 var challengedPlayer = $(this).prevAll("span.player-name").text();
+                console.log(challengedPlayer);
                 hub.server.challenge(challengedPlayer);
+                console.log("Sent");
                 return false;
             });
 
@@ -318,18 +325,19 @@
         return c.getContext("2d");
     }
 
-    function drawBoardBackground(ctx) {
-        var img = new Image();
-        img.src = "/public/img/board.jpg";
-        ctx.drawImage(img, 0, 0);
-    }
-
     function updateGameBoardDisplay(game) {
         var c = document.getElementById("canvas");
         var ctx = getContext();
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         drawBoardBackground(ctx);
         drawCounters(ctx, game.board);
+    }
+
+    function drawBoardBackground(ctx) {
+        var img = new Image();
+        img.src = "/public/img/board.jpg";
+        ctx.drawImage(img, 0, 0);
+        $(".numbers").show();
     }
 
     function drawCounters(ctx, board) {

@@ -21,3 +21,10 @@
 
 .hidden { display: none; }
 
+.numbers { padding-left: 30px; display: none; }
+.numbers li { display: inline; margin-right: 2px; }
+.numbers li:nth-child(6) { margin-right: 60px; }
+.numbers li span { display: inline-block; width: 18px; height: 20px; border: solid 1px #000; text-align: center; }
+.numbers li span.bl { background-color: #000; color: #fff;  }
+.numbers li span.wh { background-color: #fff; color: #000;  }
+
