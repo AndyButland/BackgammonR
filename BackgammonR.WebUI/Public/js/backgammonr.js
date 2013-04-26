@@ -29,8 +29,8 @@
     //--------------------------------------
     // Initialisation
     //--------------------------------------
-    function init() {
-        initPersistentConnection();
+    function init(playerName) {
+        initPersistentConnection(playerName);
         initDataBinding();
         initDisplay();
     }
@@ -40,7 +40,6 @@
     //--------------------------------------
     var viewModel = {
         name: ko.observable(""),
-        hasJoined: ko.observable(false),
         players: ko.observableArray([]),
         games: ko.observableArray([]),
         selectedGame: ko.observable(),
@@ -71,8 +70,7 @@
         };
 
         player.canChallenge = ko.computed(function () {
-            return viewModel.hasJoined() &&
-                this.name != viewModel.name() &&
+            return this.name != viewModel.name() &&
                 this.status() == "Ready to play";
         }, player);
 
@@ -121,13 +119,12 @@
     //--------------------------------------
     // Persistent connection (SignalR)
     //--------------------------------------
-    function initPersistentConnection() {
+    function initPersistentConnection(playerName) {
   
         var hub = $.connection.gameNotificationHub;
 
         hub.client.updateSelf = function (name) {
             viewModel.name(name);
-            viewModel.hasJoined(true);            
         };
 
         hub.client.loadPlayers = function (players) {
@@ -151,19 +148,18 @@
 
         hub.client.callerJoined = function (name) {            
             viewModel.name(name);
-            viewModel.hasJoined(true);
         };
 
         hub.client.left = function (name, connectionId) {
             removePlayer(name);
             if ($.connection.hub.id != connectionId) {
-                notify(player.Name + " has left.", "message", true);
+                notify(name + " has left.", "message", true);
             }
         };
 
         hub.client.callerLeft = function () {
-            viewModel.name("");
-            viewModel.hasJoined(false);
+            $.connection.hub.stop();
+            location.href = "/Home/Logout";
         };
 
         hub.client.challengeMade = function (challengerName, challengedName) {
@@ -227,8 +223,9 @@
 
         $.connection.hub.start().done(function () {
 
-            hub.server.getPlayers();
+            hub.server.getOtherPlayers();
             hub.server.getGames();
+            hub.server.join(playerName);
 
             $("#join-button").on("click", function () {
                 hub.server.join($("#join-name").val());
@@ -240,9 +237,7 @@
 
             $(document).on("click", "#player-list a.challenge", function () {
                 var challengedPlayer = $(this).prevAll("span.player-name").text();
-                console.log(challengedPlayer);
                 hub.server.challenge(challengedPlayer);
-                console.log("Sent");
                 return false;
             });
 
@@ -411,9 +406,9 @@
     }
 
     return {
-        "init": function () {
+        "init": function (name) {
             $(document).ready(function () {
-                init();
+                init(name);
             });
         }
     }

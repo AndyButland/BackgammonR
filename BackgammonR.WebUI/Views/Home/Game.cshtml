@@ -1,4 +1,6 @@
-﻿@{
+﻿@model BackgammonR.WebUI.ViewModels.GameViewModel
+
+@{
     Layout = null;
 }
 
@@ -18,27 +20,21 @@
     <script type="text/javascript" src="/public/js/libs/knockout-2.1.0.js"></script>
     <script type="text/javascript" src="/public/js/backgammonr.js"></script>
     <script type="text/javascript">
-        backgammonr.init();
+        backgammonr.init("@Model.Name");
     </script>
 </head>
 <body>    
     <div id="player-info">
         <h2>Join</h2>
 
-        <div data-bind="visible: !hasJoined()">
-            <label for="Name">Name</label>
-            <input type="text" id="join-name" />
-            <button id="join-button">Join</button>
+        <div>
+            <p>Welcome <span data-bind="text: name"></span></p>
+            <button id="leave-button">Leave</button>
         </div>
 
         <p id="error-display" class="error error-flash"></p>  
 
         <p id="message-display" class="message message-flash"></p>  
-        
-        <div data-bind="visible: hasJoined">
-            <p>Welcome <span data-bind="text: name"></span></p>
-            <button id="leave-button">Leave</button>
-        </div>
         
         <h2>Players</h2>
         <ul id="player-list" data-bind="foreach: players">

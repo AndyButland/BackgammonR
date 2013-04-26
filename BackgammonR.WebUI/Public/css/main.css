@@ -28,3 +28,13 @@
 .numbers li span.bl { background-color: #000; color: #fff;  }
 .numbers li span.wh { background-color: #fff; color: #000;  }
 
+.field-validation-error { color: red; display: block; font-size: 11px; }
+.field-validation-valid { display: none; }
+.input-validation-error { border: 1px solid red; background-color: #ffeeee; }
+.validation-summary-errors { font-weight: normal; color: red; }
+.validation-summary-errors ul li { color: red; }
+.validation-summary-valid { display: none; }
+
+.dob-validation .field-validation-error { margin: 4px 0 0 0; }
+.field-validation-error-label { color: red; }
+.cbholder .field-validation-error { margin-top: 0px; }

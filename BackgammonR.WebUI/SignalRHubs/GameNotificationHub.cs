@@ -1,10 +1,8 @@
 ﻿namespace BackgammonR.WebUI.SignalRHubs
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using System.Web.Security;
     using BackgammonR.WebUI.Models;
     using Microsoft.AspNet.SignalR;
 
@@ -45,9 +43,9 @@
 
         #region Hub methods
 
-        public void GetPlayers()
+        public void GetOtherPlayers()
         {
-            Clients.Caller.loadPlayers(Manager.Instance.Players);
+            Clients.Caller.loadPlayers(Manager.Instance.Players.Where(x => x.ConnectionId != Context.ConnectionId));
         }
 
         public void GetGames()
@@ -57,31 +55,22 @@
         
         public void Join(string name)
         {
-            if (Membership.ValidateUser(name, string.Empty))
-            {
-                var user = new Player 
-                { 
-                    Name = name, 
-                    ConnectionId = Context.ConnectionId,
-                    Status = ConnectionStatus.ReadyToPlay 
-                };
-                Manager.Instance.Players.Add(user);
+            var user = new Player 
+            { 
+                Name = name, 
+                ConnectionId = Context.ConnectionId,
+                Status = ConnectionStatus.ReadyToPlay 
+            };
+            Manager.Instance.Players.Add(user);
 
-                FormsAuthentication.SetAuthCookie(name, false);
-
-                Clients.All.joined(user, Context.ConnectionId);
-                Clients.Caller.callerJoined(name);                
-            }
-            else
-            {
-                Clients.Caller.displayError("We already have someone of that name playing.  Please choose another.");
-            }
+            Clients.All.joined(user, Context.ConnectionId);
+            Clients.Caller.callerJoined(name);                
         }
 
         public void Leave(string name)
         {
-            Manager.Instance.Players.RemoveAll(x => x.Name == name);
-            FormsAuthentication.SignOut();
+            Manager.Instance.Games.RemoveAll(x => x.Black.Name == name || x.White.Name == name);            
+            Manager.Instance.Players.RemoveAll(x => x.Name == name);            
 
             Clients.All.left(name, Context.ConnectionId);
             Clients.Caller.callerLeft();
