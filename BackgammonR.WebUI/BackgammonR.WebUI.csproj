@@ -173,6 +173,8 @@
     <None Include="Properties\PublishProfiles\backgammonr - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\backgammonr - Web Deploy.pubxml" />
     <Content Include="Views\Home\Login.cshtml" />
+    <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Views\_ViewStart.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

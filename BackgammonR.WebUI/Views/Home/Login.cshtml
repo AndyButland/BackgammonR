@@ -1,32 +1,16 @@
 ﻿@model BackgammonR.WebUI.ViewModels.LoginViewModel
-@{
-    Layout = null;
-}
 
-<!DOCTYPE html>
+<div id="player-info">
+    <h2>Join</h2>
 
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>BackgammonR</title>
-
-    <link rel="stylesheet" type="text/css" href="/public/css/main.css" />
-
-</head>
-<body>    
-    <div id="player-info">
-        <h2>Join</h2>
-
-        @using(Html.BeginForm("Login", "Home", FormMethod.Post))
-        {
-            @Html.ValidationSummary(true, "Login failed.");
+    @using(Html.BeginForm("Login", "Home", FormMethod.Post))
+    {
+        @Html.ValidationSummary(true, "Login failed.");
             
-            @Html.AntiForgeryToken()
-            @Html.EditorForModel()    
+        @Html.AntiForgeryToken()
+        @Html.EditorForModel()    
             
-            <input type="submit" value="Join" />
-        }
+        <input type="submit" value="Join" />
+    }
 
-    </div>
-</body>
-</html>
+</div>

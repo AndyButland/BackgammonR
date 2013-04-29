@@ -49,7 +49,7 @@
 
     viewModel.isTurn = ko.computed(function () {
         return this.selectedGame() != null && this.selectedGame().currentPlayer() == this.playing();
-        }, viewModel);
+    }, viewModel);
 
     function initDataBinding() {
         ko.applyBindings(viewModel);
@@ -128,8 +128,10 @@
         };
 
         hub.client.loadPlayers = function (players) {
-            for (var i = 0; i < players.length; i++) {
-                addPlayer(players[i]);
+            if (players != undefined) {
+                for (var i = 0; i < players.length; i++) {
+                    addPlayer(players[i]);
+                }
             }
         };
 
@@ -223,7 +225,7 @@
 
         $.connection.hub.start().done(function () {
 
-            hub.server.getOtherPlayers();
+            hub.server.getPlayers();
             hub.server.getGames();
             hub.server.join(playerName);
 
@@ -254,6 +256,13 @@
                 var game = getGame(gameId)
                 selectGame(game);
                 updateGameBoardDisplay(game);
+
+                if (viewModel.name() == game.black) {
+                    viewModel.playing("Black");
+                } else if (viewModel.name() == game.white) {
+                    viewModel.playing("White");
+                }
+
                 return false;
             });
 

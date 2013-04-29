@@ -1,120 +1,95 @@
 ﻿@model BackgammonR.WebUI.ViewModels.GameViewModel
 
-@{
-    Layout = null;
-}
+<div id="player-info">
+    <h2>Join</h2>
 
-<!DOCTYPE html>
+    <div>
+        <p>Welcome <span data-bind="text: name"></span></p>
+        <button id="leave-button">Leave</button>
+    </div>
 
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>BackgammonR</title>
+    <p id="error-display" class="error error-flash"></p>  
 
-    <link rel="stylesheet" type="text/css" href="/public/css/main.css" />
-
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-    <script>window.jQuery || document.write("<script src='/public/js/libs/jquery-1.8.3.min.js'>\x3C/script>")</script>
-    <script type="text/javascript" src="/public/js/libs/jquery.signalR-1.0.1.min.js"></script>
-    <script type="text/javascript" src="~/signalr/hubs"></script>
-    <script type="text/javascript" src="/public/js/libs/knockout-2.1.0.js"></script>
-    <script type="text/javascript" src="/public/js/backgammonr.js"></script>
-    <script type="text/javascript">
-        backgammonr.init("@Model.Name");
-    </script>
-</head>
-<body>    
-    <div id="player-info">
-        <h2>Join</h2>
-
-        <div>
-            <p>Welcome <span data-bind="text: name"></span></p>
-            <button id="leave-button">Leave</button>
-        </div>
-
-        <p id="error-display" class="error error-flash"></p>  
-
-        <p id="message-display" class="message message-flash"></p>  
+    <p id="message-display" class="message message-flash"></p>  
         
-        <h2>Players</h2>
-        <ul id="player-list" data-bind="foreach: players">
-            <li>
-                <span class="player-name" data-bind="text: name"></span> (<span data-bind="text: status"></span>)
-                <a href="" class="challenge" data-bind="visible: canChallenge">Challenge</a>
-            </li>
-        </ul>
+    <h2>Players</h2>
+    <ul id="player-list" data-bind="foreach: players">
+        <li>
+            <span class="player-name" data-bind="text: name"></span> (<span data-bind="text: status"></span>)
+            <a href="" class="challenge" data-bind="visible: canChallenge">Challenge</a>
+        </li>
+    </ul>
 
-        <h2>Games</h2>
-        <ul id="game-list" data-bind="foreach: games">
-            <li>
-                <span data-bind="text: black"></span> v <span data-bind="text: white"></span>
-                <a href="" class="view-game" data-bind="attr: { 'data-id': id }">View</a> 
-            </li>
-        </ul>
+    <h2>Games</h2>
+    <ul id="game-list" data-bind="foreach: games">
+        <li>
+            <span data-bind="text: black"></span> v <span data-bind="text: white"></span>
+            <a href="" class="view-game" data-bind="attr: { 'data-id': id }">View</a> 
+        </li>
+    </ul>
 
-    </div>
+</div>
 
-    <div id="board">
-        <!-- ko if: selectedGame -->
-            <h2 data-bind="text: selectedGame().description"></h2>
-            <p><span data-bind="text: selectedGame().currentPlayer"></span> to play</p>
-         <!-- /ko -->
-        <ul class="numbers">
-            @for (int i = 12; i >= 1; i--)
-            {
-                <li>
-                    <span class="bl">@i</span>
-                    <span class="wh">@(24 - i + 1)</span>
-                </li>
-            }
-        </ul>
-        <canvas id="canvas" width="780" height="641"></canvas>
-        <ul class="numbers">
-            @for (int i = 12; i >= 1; i--)
-            {
-                <li>
-                    <span class="bl">@(24 - i + 1)</span>
-                    <span class="wh">@i</span>                    
-                </li>
-            }
-        </ul>
-    </div>
-
-    <div id="play">
-        <!-- ko if: selectedGame -->
-            <h3>Dice</h3>
-            <!-- ko if: isTurn -->
-                <div><button id="roll">Roll</button></div>
-            <!-- /ko -->
-            <div>
-                <span id="dice1" class="dice"></span>
-                <span id="dice2" class="dice"></span>
-            </div>
-            <!-- ko if: isTurn -->
-                <h3>Move</h3>
-                <div>Move 1 -  from: <input id="from1" /></div>
-                <div>to: <input id="to1" /> </div>
-                <div>Move 2 -  from: <input id="from2" /></div>
-                <div>to: <input id="to2" /> </div>
-
-                <!-- ko if: rolledDouble -->                
-                    <div>Move 3 -  from: <input id="from3" /></div>
-                    <div>to: <input id="to3" /> </div>
-                    <div>Move 4 -  from: <input id="from4" /></div>
-                    <div>to: <input id="to4" /> </div>
-                <!-- /ko -->
-
-                <div><button id="move">Move</button> <button id="pass">Pass</button></div>
-
-            <!-- /ko -->
+<div id="board">
+    <!-- ko if: selectedGame -->
+        <h2 data-bind="text: selectedGame().description"></h2>
+        <p><span data-bind="text: selectedGame().currentPlayer"></span> to play</p>
         <!-- /ko -->
-    </div>
+    <ul class="numbers">
+        @for (int i = 12; i >= 1; i--)
+        {
+            <li>
+                <span class="bl">@i</span>
+                <span class="wh">@(24 - i + 1)</span>
+            </li>
+        }
+    </ul>
+    <canvas id="canvas" width="780" height="641"></canvas>
+    <ul class="numbers">
+        @for (int i = 12; i >= 1; i--)
+        {
+            <li>
+                <span class="bl">@(24 - i + 1)</span>
+                <span class="wh">@i</span>                    
+            </li>
+        }
+    </ul>
+</div>
 
-    <div class="hidden">
-        <!-- Preloads -->
-        <img src="/public/img/board.jpg" />
-        <img src="/public/img/black.png" />
-        <img src="/public/img/white.png" />
-    </div>
-</body>
-</html>
+<div id="play">
+    <!-- ko if: selectedGame -->
+        <h3>Dice</h3>
+        <!-- ko if: isTurn -->
+            <div><button id="roll">Roll</button></div>
+        <!-- /ko -->
+        <div>
+            <span id="dice1" class="dice"></span>
+            <span id="dice2" class="dice"></span>
+        </div>
+        <!-- ko if: isTurn -->
+            <h3>Move</h3>
+            <div>Move 1 -  from: <input id="from1" /></div>
+            <div>to: <input id="to1" /> </div>
+            <div>Move 2 -  from: <input id="from2" /></div>
+            <div>to: <input id="to2" /> </div>
+
+            <!-- ko if: rolledDouble -->                
+                <div>Move 3 -  from: <input id="from3" /></div>
+                <div>to: <input id="to3" /> </div>
+                <div>Move 4 -  from: <input id="from4" /></div>
+                <div>to: <input id="to4" /> </div>
+            <!-- /ko -->
+
+            <div><button id="move">Move</button> <button id="pass">Pass</button></div>
+
+        <!-- /ko -->
+    <!-- /ko -->
+</div>
+
+<div class="hidden">
+    <!-- Preloads -->
+    <img src="/public/img/board.jpg" />
+    <img src="/public/img/black.png" />
+    <img src="/public/img/white.png" />
+</div>
+

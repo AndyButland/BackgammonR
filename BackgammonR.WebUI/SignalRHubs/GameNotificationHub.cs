@@ -43,9 +43,9 @@
 
         #region Hub methods
 
-        public void GetOtherPlayers()
+        public void GetPlayers()
         {
-            Clients.Caller.loadPlayers(Manager.Instance.Players.Where(x => x.ConnectionId != Context.ConnectionId));
+            Clients.Caller.loadPlayers(Manager.Instance.Players);
         }
 
         public void GetGames()
@@ -55,16 +55,19 @@
         
         public void Join(string name)
         {
-            var user = new Player 
-            { 
-                Name = name, 
-                ConnectionId = Context.ConnectionId,
-                Status = ConnectionStatus.ReadyToPlay 
-            };
-            Manager.Instance.Players.Add(user);
+            if (!Manager.Instance.Players.Any(x => x.Name == name))
+            {
+                var user = new Player 
+                { 
+                    Name = name, 
+                    ConnectionId = Context.ConnectionId,
+                    Status = ConnectionStatus.ReadyToPlay 
+                };
+                Manager.Instance.Players.Add(user);
 
-            Clients.All.joined(user, Context.ConnectionId);
-            Clients.Caller.callerJoined(name);                
+                Clients.All.joined(user, Context.ConnectionId);
+                Clients.Caller.callerJoined(name);                
+            }
         }
 
         public void Leave(string name)

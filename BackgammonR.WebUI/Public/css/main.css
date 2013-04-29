@@ -1,6 +1,8 @@
 ﻿body { font-family: Tahoma; font-size: 90%; }
 
-#player-info   { float: left; width: 260px; }
+#container { width: 1240px;}
+
+#player-info   { float: left; width: 240px; }
 #board { float: left; width: 780px; margin-left: 10px; margin-right: 10px; }
 #play { float: left; width: 200px; }
 
